@@ -1,19 +1,20 @@
 import 'package:express_delivery/AddTask.dart';
+import 'package:express_delivery/models/task.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'TaskDetail.dart';
+import 'package:intl/intl.dart';
+import '../TaskDetail.dart';
 
-import 'models/User.dart';
-
-class Task extends StatefulWidget {
-  const Task({super.key});
+class TaskGallery extends StatefulWidget {
+  const TaskGallery({super.key});
 
   @override
-  State<StatefulWidget> createState() => TaskState();
+  State<StatefulWidget> createState() => TaskGalleryState();
 }
 
-class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
-  late Future<List<User>> users;
+class TaskGalleryState extends State<TaskGallery>
+    with AutomaticKeepAliveClientMixin {
+  late Future<List<Task>> tasks;
 
   var hover = false;
   var hoverIndex = -1;
@@ -26,7 +27,7 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    users = fetchUser();
+    tasks = fetchTasks();
   }
 
   Widget detailText(String text) {
@@ -39,8 +40,8 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
 
   Future<void> _pullRefresh() async {
     try {
-      users = fetchUser();
-      await users;
+      tasks = fetchTasks();
+      await tasks;
       setState(() {});
     } catch (error) {
       setState(() {});
@@ -52,7 +53,7 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("快递代拿"),
+        title: const Text("任务广场"),
         centerTitle: true,
         actions: <Widget>[
           IconButton(
@@ -66,7 +67,7 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
         ],
       ),
       body: FutureBuilder(
-        future: users,
+        future: tasks,
         builder: (context, snapshot) {
           return RefreshIndicator(
             onRefresh: _pullRefresh,
@@ -77,15 +78,15 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Widget _listView(AsyncSnapshot<List<User>> snapshot) {
+  Widget _listView(AsyncSnapshot<List<Task>> snapshot) {
     if (snapshot.hasData) {
-      List<User> users = snapshot.data!;
+      List<Task> tasks = snapshot.data!;
 
       return CupertinoScrollbar(
           controller: scrollController,
           child: ListView.builder(
               controller: scrollController,
-              itemCount: users.length,
+              itemCount: tasks.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTapDown: (details) {
@@ -105,7 +106,7 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
                     });
                     Navigator.push(context,
                         CupertinoPageRoute(builder: (context) {
-                      return TaskDetail(user: users[index]);
+                      return TaskDetail(task: tasks[index]);
                     }));
                   },
                   child: Container(
@@ -114,7 +115,8 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
                             ? Colors.black26
                             : null,
                         border: const Border(
-                            top: BorderSide(color: Colors.black12))),
+                            top: BorderSide(color: Colors.black12),
+                            bottom: BorderSide(color: Colors.black12))),
                     child: Row(
                       children: [
                         Container(
@@ -124,9 +126,21 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "用户名 ${users[index].username}",
-                                style: Theme.of(context).textTheme.titleSmall,
+                              SizedBox(
+                                height: 4,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "发布者ID ${tasks[index].userId}",
+                                    style:
+                                        Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                  const SizedBox(
+                                    width: 30,
+                                  ),
+                                  Text("快递数量 ${tasks[index].expressNum}")
+                                ],
                               ),
                               Container(
                                 constraints:
@@ -136,19 +150,36 @@ class TaskState extends State<Task> with AutomaticKeepAliveClientMixin {
                                         CrossAxisAlignment.start,
                                     children: [
                                       detailText(
-                                        "昵称 ${users[index].nickname}",
+                                        "重量: ${tasks[index].weight} kg",
                                       ),
                                       detailText(
-                                        "手机 ${users[index].phone}",
+                                        "珍贵程度: ${tasks[index].taskValue.description}",
                                       ),
                                       detailText(
-                                        "邮箱 ${users[index].email} ${users[index].email} ${users[index].email} ${users[index].email} ${users[index].email} ${users[index].email}",
+                                        "创建时间 ${DateFormat('yyyy-MM-dd - kk:mm').format(tasks[index].createTime)}",
                                       ),
                                       detailText(
-                                        "地址 ${users[index].address}",
+                                        "地址: ${tasks[index].address}",
+                                      ),
+                                      SizedBox(
+                                        width: 300,
+                                        child: Text(
+                                          "任务描述: ${tasks[index].comment}...................................................................................................",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .caption,
+                                        ),
+                                      ),
+                                      Text(
+                                        "金额: ${tasks[index].reward} 元",
+                                        style: const TextStyle(
+                                            color: Colors.amber),
                                       ),
                                     ]),
-                              )
+                              ),
+                              SizedBox(
+                                height: 4,
+                              ),
                             ],
                           ),
                         )

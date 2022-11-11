@@ -1,7 +1,9 @@
 import 'package:express_delivery/HomePage.dart';
+import 'package:express_delivery/personal_page.dart';
+import 'package:express_delivery/task/task_status.dart';
 import 'package:flutter/material.dart';
 
-import 'Task.dart';
+import 'task/task_gallery.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -40,13 +42,13 @@ class _HomeState extends State<Home> {
     });
   }
 
-  static const Task task = Task();
+  static const TaskGallery task = TaskGallery();
 
   final List<Widget> _pages = [
     const HomePage(),
-    const Task(),
+    const TaskStatus(),
     const ErrorPage(),
-    const ErrorPage()
+    const PersonalPage()
   ];
 
   @override
