@@ -164,7 +164,8 @@ class TaskGalleryState extends State<TaskGallery>
                                       SizedBox(
                                         width: 300,
                                         child: Text(
-                                          "任务描述: ${tasks[index].comment}...................................................................................................",
+                                          "备注: ${tasks[index].comment}",
+                                          overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
                                               .textTheme
                                               .caption,
