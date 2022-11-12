@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'request.dart';
 
-enum TaskState { pending, complete }
+enum TaskState { pending, accepted, complete }
 
 enum TaskValue {
   low("低"),
@@ -46,27 +46,27 @@ class Task {
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      json['uid'],
+      json['userId'],
       json['expressNum'],
-      json['dweight'],
-      json['dreward'],
-      json['daddress'],
-      DateTime.parse(json['ddoorTime']),
-      DateTime.parse(json['dcreateTime']),
-      json['dacceptTime'] == null ? null : DateTime.parse(json['dacceptTime']),
-      json['dcompleteTime'] == null
+      double.parse(json['weight']),
+      double.parse(json['reward']),
+      json['address'],
+      DateTime.parse(json['doorTime']),
+      DateTime.parse(json['createTime']),
+      json['dacceptTime'] == null ? null : DateTime.parse(json['acceptTime']),
+      json['completeTime'] == null
           ? null
-          : DateTime.parse(json['dcompleteTime']),
+          : DateTime.parse(json['completeTime']),
       json['comment'],
-      TaskValue.values[json['dvalue']],
-      TaskState.values[json['dstate']],
+      TaskValue.values[json['value']],
+      TaskState.values[json['state']],
     );
   }
 }
 
 Future<List<Task>> fetchTasks() async {
   try {
-    final response = await Request().get("/express/getTaskAvailable",
+    final response = await Request().get("/express/task/getTaskAvailable",
         options: Options(
             followRedirects: false,
             validateStatus: (status) {
@@ -79,7 +79,7 @@ Future<List<Task>> fetchTasks() async {
     // If the server did return a 200 OK response,
     // then parse the JSON.
 
-    final List<dynamic> records = response.data;
+    final List<dynamic> records = response.data['data'];
 
     List<Task> ret = [];
 

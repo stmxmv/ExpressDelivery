@@ -78,55 +78,70 @@ class PersonalPageState extends State<PersonalPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+          decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),
           child: Stack(
-        children: [
-          Container(
-            child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: ListView(children: [
-                  headerWidget(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Cell(
-                    title: "我的订单",
-                    imageName: "assets/images/order.png",
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Cell(
-                    title: "客服",
-                    imageName: "assets/images/customer_service.png",
-                  ),
-                  const Cell(
-                    title: "会员中心",
-                    imageName: "assets/images/vip.png",
-                  ),
-                  const Cell(
-                    title: "服务中心",
-                    imageName: "assets/images/earth.png",
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Cell(
-                    title: "注销",
-                    imageName: "assets/images/signout.png",
-                  )
-                ])),
-          ),
-          Positioned(
-            right: 10,
-            top: 40,
-            child: Image.asset(
-              "assets/images/camera.png",
-              width: 25,
-            ),
-          ),
-        ],
-      )),
+            children: [
+              Container(
+                child: MediaQuery.removePadding(
+                    context: context,
+                    removeTop: true,
+                    child: ListView(children: [
+                      headerWidget(),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Cell(
+                        title: "我的订单",
+                        imageName: "assets/images/order.png",
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Cell(
+                        title: "客服",
+                        imageName: "assets/images/customer_service.png",
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Container(
+                              width: 50, height: 0.5, color: Colors.white),
+                          Container(height: 0.5, color: Colors.grey)
+                        ],
+                      ),
+                      const Cell(
+                        title: "会员中心",
+                        imageName: "assets/images/vip.png",
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Container(
+                              width: 50, height: 0.5, color: Colors.white),
+                          Container(height: 0.5, color: Colors.grey)
+                        ],
+                      ),
+                      const Cell(
+                        title: "服务中心",
+                        imageName: "assets/images/earth.png",
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Cell(
+                        title: "注销",
+                        imageName: "assets/images/signout.png",
+                      )
+                    ])),
+              ),
+              Positioned(
+                right: 10,
+                top: 40,
+                child: Image.asset(
+                  "assets/images/camera.png",
+                  width: 25,
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

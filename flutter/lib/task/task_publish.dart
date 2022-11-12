@@ -65,6 +65,9 @@ class TaskPublishState extends State<TaskPublish> {
 
   ExpressStation station = ExpressStation(0, "深大沧海校区菜鸟驿站", "深大沧海校区");
 
+  TextEditingController commentTextEditingController = TextEditingController();
+  FocusNode commentFocusNode = FocusNode();
+
   List<FocusNode> taskItemCommentFocusNodes = [FocusNode()];
   List<TextEditingController> taskItemTextEditingControllers = [
     TextEditingController()
@@ -311,6 +314,32 @@ class TaskPublishState extends State<TaskPublish> {
                         }),
                       ),
                       Row(
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(left: 15, top: 8),
+                            child: Text(
+                              "备注",
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 8),
+                        child: TextField(
+                          controller: commentTextEditingController,
+                          focusNode: commentFocusNode,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: 10,
+                          minLines: 2,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '备注信息',
+                          ),
+                        ),
+                      ),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           // CupertinoButton(
@@ -401,16 +430,26 @@ class TaskPublishState extends State<TaskPublish> {
                                     return chooseAddressList;
                                   })).then((value) {
                                     setState(() {
-                                      currentAddressInfo = chooseAddressList
+                                      var addressInfo = chooseAddressList
                                           .getSelectedAddress();
+                                      if (addressInfo != null) {
+                                        currentAddressInfo = addressInfo;
+                                      }
                                     });
                                   });
                                 },
                                 child: currentAddressInfo == null
                                     ? const Text("加载中")
-                                    : Text(
-                                        "${currentAddressInfo?.name} ${currentAddressInfo?.detail}" ??
-                                            "不存在地址"),
+                                    : Container(
+                                        constraints:
+                                            const BoxConstraints(maxWidth: 250),
+                                        child: Text(
+                                          currentAddressInfo != null
+                                              ? "${currentAddressInfo?.name} ${currentAddressInfo?.detail}"
+                                              : "不存在地址",
+                                          overflow: TextOverflow.clip,
+                                          maxLines: 1,
+                                        )),
                               )
                             ],
                           )),

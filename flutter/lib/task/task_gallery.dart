@@ -55,16 +55,16 @@ class TaskGalleryState extends State<TaskGallery>
       appBar: AppBar(
         title: const Text("任务广场"),
         centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (context) {
-                return const AddTask();
-              }));
-            },
-          )
-        ],
+        // actions: <Widget>[
+        // IconButton(
+        //   icon: const Icon(Icons.add),
+        //   onPressed: () {
+        //     Navigator.push(context, CupertinoPageRoute(builder: (context) {
+        //       return const AddTask();
+        //     }));
+        //   },
+        // )
+        // ],
       ),
       body: FutureBuilder(
         future: tasks,

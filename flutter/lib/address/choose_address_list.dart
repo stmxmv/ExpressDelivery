@@ -2,6 +2,7 @@ import 'package:express_delivery/models/address_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:express_delivery/address/address_add.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../models/request.dart';
 import '../services/UserServices.dart';
@@ -45,11 +46,24 @@ class AddressListState extends State<ChooseAddressList> {
             widget.selectIndex = i;
             widget.addressInfo = addressInfos[i];
           });
-        }, {
-          "name": addressInfos[i].name,
-          "phone": addressInfos[i].phone,
-          "area": addressInfos[i].area,
-          "detail": addressInfos[i].detail
+        }, () async {
+          bool result = await AddressManager().deleteAddress(addressInfos[i]);
+          var infos = await AddressManager().fetchAddressInfos();
+          this.addressInfos = Future.value(infos);
+          await this.addressInfos;
+          if (result && mounted) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('删除成功')));
+            setState(() {
+              if (widget.selectIndex == i) {
+                widget.selectIndex = 0;
+                widget.addressInfo = infos[0];
+              }
+            });
+          } else {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('删除失败')));
+          }
         }),
       );
       if (i != addressInfos.length - 1) {
@@ -60,25 +74,47 @@ class AddressListState extends State<ChooseAddressList> {
     return children;
   }
 
-  Widget addressRow(
-      AddressInfo info, bool selected, void Function()? onTap, Map? argument) {
-    return ListTile(
-      onTap: onTap,
-      leading: selected ? const Icon(Icons.check, color: Colors.red) : null,
-      title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text("${info.name}  ${info.phone}"),
-        const SizedBox(height: 10),
-        Text(info.detail),
-      ]),
-      trailing: GestureDetector(
-        child: const Icon(Icons.edit, color: Colors.blue),
-        onTap: () {
-          Navigator.push(context, CupertinoPageRoute(builder: (context) {
-            return AddressEditPage(
-              arguments: argument,
-            );
-          }));
-        },
+  Widget addressRow(AddressInfo info, bool selected, void Function()? onTap,
+      void Function()? onDelete) {
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              if (onDelete != null) {
+                onDelete();
+              }
+            },
+            backgroundColor: Color(0xFFFE4A49),
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: '删除',
+          ),
+        ],
+      ),
+      child: ListTile(
+        onTap: onTap,
+        leading: selected ? const Icon(Icons.check, color: Colors.red) : null,
+        title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text("${info.name}  ${info.phone}"),
+          const SizedBox(height: 10),
+          Text("${info.area} ${info.detail}"),
+        ]),
+        trailing: GestureDetector(
+          child: const Icon(Icons.edit, color: Colors.blue),
+          onTap: () {
+            Navigator.push(context, CupertinoPageRoute(builder: (context) {
+              return AddressEditPage(
+                info: info,
+              );
+            })).then((value) {
+              setState(() {
+                addressInfos = AddressManager().fetchAddressInfos();
+              });
+            });
+          },
+        ),
       ),
     );
   }
@@ -129,7 +165,13 @@ class AddressListState extends State<ChooseAddressList> {
                       Navigator.push(context,
                           CupertinoPageRoute(builder: (context) {
                         return const AddressAdd();
-                      }));
+                      })).then(
+                        (value) {
+                          setState(() {
+                            addressInfos = AddressManager().fetchAddressInfos();
+                          });
+                        },
+                      );
                     },
                   ),
                 ),

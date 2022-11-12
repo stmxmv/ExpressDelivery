@@ -5,10 +5,10 @@ import 'request.dart';
 
 class AddressInfo {
   int? id;
-  final String name;
-  final String phone;
-  final String area;
-  final String detail;
+  String name;
+  String phone;
+  String area;
+  String detail;
 
   AddressInfo(this.name, this.phone, this.area, this.detail);
 }
@@ -47,12 +47,19 @@ class AddressManager {
       List<dynamic> addressInfoList = response.data['data'];
       List<AddressInfo> infos = [];
       for (var jsonInfo in addressInfoList) {
-        infos.add(AddressInfo(jsonInfo['name'], jsonInfo['phone'],
-            jsonInfo['address'], jsonInfo['detailAddress']));
+        var addressInfo = AddressInfo(jsonInfo['name'], jsonInfo['phone'],
+            jsonInfo['address'], jsonInfo['detailAddress']);
+        if (jsonInfo['id'] == null) {
+          return Future.error("the address has no id");
+        }
+        addressInfo.id = jsonInfo['id'];
+        infos.add(addressInfo);
       }
 
       return infos;
-    } catch (error) {}
+    } catch (error) {
+      print(error);
+    }
 
     return [];
   }
@@ -80,5 +87,43 @@ class AddressManager {
     return false;
   }
 
-  // Future<bool> deleteAddress() {}
+  Future<bool> updateAddress(AddressInfo info) async {
+    int userId = await UserServices().getUserId();
+    var data = {
+      "id": info.id,
+      "userId": userId,
+      "name": info.name,
+      "phone": info.phone,
+      "address": info.area,
+      "detailAddress": info.detail
+    };
+
+    try {
+      Response response =
+          await Request().post("/express/address/setAddress", data: data);
+      if (response.data['msg'] == "成功") {
+        return true;
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    return false;
+  }
+
+  Future<bool> deleteAddress(AddressInfo info) async {
+    int userId = await UserServices().getUserId();
+    try {
+      Response response = await Request().get("/express/address/deleteAddress",
+          queryParameters: {"id": info.id});
+
+      if (response.data['msg'] != null && response.data['msg'] == "成功") {
+        return true;
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    return false;
+  }
 }

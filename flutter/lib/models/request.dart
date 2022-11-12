@@ -11,7 +11,7 @@ class Request {
 
   Request._internal();
 
-  final String serverAddress = "http://172.29.41.98:8080";
+  final String serverAddress = "http://10.0.2.2:8080";
 
   Future<Response<T>> get<T>(String path,
       {Map<String, dynamic>? queryParameters,

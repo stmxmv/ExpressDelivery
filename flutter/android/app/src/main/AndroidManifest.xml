@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.express_delivery">
    <application
-        android:label="express_delivery"
+        android:label="快递代拿"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

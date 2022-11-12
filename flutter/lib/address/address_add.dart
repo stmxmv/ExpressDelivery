@@ -105,6 +105,8 @@ class AddressAddState extends State<AddressAdd> {
                     if (result && mounted) {
                       ScaffoldMessenger.of(context)
                           .showSnackBar(const SnackBar(content: Text('添加成功')));
+
+                      Navigator.pop(context);
                     } else if (mounted) {
                       ScaffoldMessenger.of(context)
                           .showSnackBar(const SnackBar(content: Text('添加失败')));
