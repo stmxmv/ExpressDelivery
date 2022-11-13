@@ -3,7 +3,7 @@ class ExpressStation {
   String name;
   String address;
 
-  ExpressStation(this.id, this.name, this.address);
+  ExpressStation({required this.id, required this.name, required this.address});
 
   @override
   String toString() {

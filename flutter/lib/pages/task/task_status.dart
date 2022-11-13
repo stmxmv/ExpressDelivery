@@ -11,16 +11,19 @@ class TaskStatusState extends State<TaskStatus> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           bottom: const TabBar(
             tabs: [
               Tab(
-                text: "未完成",
+                text: "已接受",
               ),
               Tab(
-                text: "以完成",
+                text: "已发布",
+              ),
+              Tab(
+                text: "已完成",
               ),
             ],
           ),
@@ -29,8 +32,15 @@ class TaskStatusState extends State<TaskStatus> {
         ),
         body: const TabBarView(
           children: [
-            Icon(Icons.directions_car),
-            Icon(Icons.directions_transit),
+            Center(
+              child: Text("已接受"),
+            ),
+            Center(
+              child: Text("已发布"),
+            ),
+            Center(
+              child: Text("已完成"),
+            )
           ],
         ),
       ),

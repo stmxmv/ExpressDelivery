@@ -1,11 +1,11 @@
-import 'package:express_delivery/models/address_manager.dart';
+import 'package:express_delivery/services/address_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:express_delivery/address/address_add.dart';
+import 'package:express_delivery/pages/address/address_add.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../models/request.dart';
-import '../services/UserServices.dart';
+import '../../services/request.dart';
+import '../../services/UserServices.dart';
 import 'address_edit.dart';
 
 class ChooseAddressList extends StatefulWidget {
@@ -166,9 +166,14 @@ class AddressListState extends State<ChooseAddressList> {
                           CupertinoPageRoute(builder: (context) {
                         return const AddressAdd();
                       })).then(
-                        (value) {
+                        (value) async {
+                          final addressInfos =
+                              await AddressManager().fetchAddressInfos();
+
+                          final info = addressInfos[widget.selectIndex];
                           setState(() {
-                            addressInfos = AddressManager().fetchAddressInfos();
+                            this.addressInfos = Future.value(addressInfos);
+                            widget.addressInfo = info;
                           });
                         },
                       );

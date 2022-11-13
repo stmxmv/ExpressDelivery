@@ -1,9 +1,9 @@
-import 'package:express_delivery/AddTask.dart';
 import 'package:express_delivery/models/task.dart';
+import 'package:express_delivery/services/screenAdaper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../TaskDetail.dart';
+import 'task_detail.dart';
 
 class TaskGallery extends StatefulWidget {
   const TaskGallery({super.key});
@@ -79,6 +79,7 @@ class TaskGalleryState extends State<TaskGallery>
   }
 
   Widget _listView(AsyncSnapshot<List<Task>> snapshot) {
+    ScreenAdaper.init(context);
     if (snapshot.hasData) {
       List<Task> tasks = snapshot.data!;
 
@@ -107,7 +108,9 @@ class TaskGalleryState extends State<TaskGallery>
                     Navigator.push(context,
                         CupertinoPageRoute(builder: (context) {
                       return TaskDetail(task: tasks[index]);
-                    }));
+                    })).then((value) {
+                      _pullRefresh();
+                    });
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -127,7 +130,7 @@ class TaskGalleryState extends State<TaskGallery>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                height: 4,
+                                height: ScreenAdaper.height(4),
                               ),
                               Row(
                                 children: [
@@ -136,15 +139,15 @@ class TaskGalleryState extends State<TaskGallery>
                                     style:
                                         Theme.of(context).textTheme.titleSmall,
                                   ),
-                                  const SizedBox(
-                                    width: 30,
+                                  SizedBox(
+                                    width: ScreenAdaper.width(30),
                                   ),
                                   Text("快递数量 ${tasks[index].expressNum}")
                                 ],
                               ),
                               Container(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 380.0),
+                                constraints: BoxConstraints(
+                                    maxWidth: ScreenAdaper.width(250)),
                                 child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -162,7 +165,7 @@ class TaskGalleryState extends State<TaskGallery>
                                         "地址: ${tasks[index].address}",
                                       ),
                                       SizedBox(
-                                        width: 300,
+                                        width: ScreenAdaper.width(300),
                                         child: Text(
                                           "备注: ${tasks[index].comment}",
                                           overflow: TextOverflow.ellipsis,
@@ -171,17 +174,20 @@ class TaskGalleryState extends State<TaskGallery>
                                               .caption,
                                         ),
                                       ),
-                                      Text(
-                                        "金额: ${tasks[index].reward} 元",
-                                        style: const TextStyle(
-                                            color: Colors.amber),
-                                      ),
                                     ]),
                               ),
                               SizedBox(
-                                height: 4,
+                                height: ScreenAdaper.height(4),
                               ),
                             ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: ScreenAdaper.width(100),
+                          child: Text(
+                            "赏金: ${tasks[index].reward} 元",
+                            style: const TextStyle(color: Colors.amber),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         )
                       ],

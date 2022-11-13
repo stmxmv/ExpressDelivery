@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../services/UserServices.dart';
+import 'UserServices.dart';
 import 'request.dart';
 
 class AddressInfo {

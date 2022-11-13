@@ -5,6 +5,7 @@ class ScreenAdaper {
     return ScreenUtil().setSp(value);
   }
 
+  /// default size is 360 x 690
   static init(context) {
     ScreenUtil.init(context);
   }

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'request.dart';
+import '../services/request.dart';
 
 enum TaskState { pending, accepted, complete }
 
@@ -13,6 +13,7 @@ enum TaskValue {
 }
 
 class Task {
+  final int id;
   final int userId;
   final int expressNum;
   final double weight;
@@ -30,37 +31,37 @@ class Task {
 
   // constructor
   const Task(
-    this.userId,
-    this.expressNum,
-    this.weight,
-    this.reward,
-    this.address,
-    this.doorTime,
-    this.createTime,
-    this.acceptTime,
-    this.completeTime,
-    this.comment,
-    this.taskValue,
-    this.state,
-  );
+      this.userId,
+      this.expressNum,
+      this.weight,
+      this.reward,
+      this.address,
+      this.doorTime,
+      this.createTime,
+      this.acceptTime,
+      this.completeTime,
+      this.comment,
+      this.taskValue,
+      this.state,
+      {required this.id});
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      json['userId'],
-      json['expressNum'],
-      double.parse(json['weight']),
-      double.parse(json['reward']),
-      json['address'],
-      DateTime.parse(json['doorTime']),
-      DateTime.parse(json['createTime']),
-      json['dacceptTime'] == null ? null : DateTime.parse(json['acceptTime']),
-      json['completeTime'] == null
-          ? null
-          : DateTime.parse(json['completeTime']),
-      json['comment'],
-      TaskValue.values[json['value']],
-      TaskState.values[json['state']],
-    );
+        json['userId'],
+        json['expressNum'],
+        double.parse(json['weight']),
+        double.parse(json['reward']),
+        json['address'],
+        DateTime.parse(json['doorTime']),
+        DateTime.parse(json['createTime']),
+        json['dacceptTime'] == null ? null : DateTime.parse(json['acceptTime']),
+        json['completeTime'] == null
+            ? null
+            : DateTime.parse(json['completeTime']),
+        json['comment'],
+        TaskValue.values[json['value']],
+        TaskState.values[json['state']],
+        id: json['id']);
   }
 }
 
@@ -93,7 +94,7 @@ Future<List<Task>> fetchTasks() async {
     if (error.response?.statusCode == 404) {
       return Future.error("404");
     } else {
-      return Future.error(error.message);
+      return Future.error("获取任务列表失败 ");
     }
   }
 }

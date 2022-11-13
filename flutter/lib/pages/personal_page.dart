@@ -1,6 +1,8 @@
+import 'package:express_delivery/services/screenAdaper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import 'cell.dart';
+import '../widgets/cell.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -76,6 +78,8 @@ class PersonalPageState extends State<PersonalPage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenAdaper.init(context);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return Scaffold(
       body: Container(
           decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),
@@ -87,15 +91,15 @@ class PersonalPageState extends State<PersonalPage> {
                     removeTop: true,
                     child: ListView(children: [
                       headerWidget(),
-                      const SizedBox(
-                        height: 10,
+                      SizedBox(
+                        height: ScreenAdaper.height(10),
                       ),
                       const Cell(
                         title: "我的订单",
                         imageName: "assets/images/order.png",
                       ),
-                      const SizedBox(
-                        height: 10,
+                      SizedBox(
+                        height: ScreenAdaper.height(10),
                       ),
                       const Cell(
                         title: "客服",
@@ -123,8 +127,8 @@ class PersonalPageState extends State<PersonalPage> {
                         title: "服务中心",
                         imageName: "assets/images/earth.png",
                       ),
-                      const SizedBox(
-                        height: 10,
+                      SizedBox(
+                        height: ScreenAdaper.height(10),
                       ),
                       const Cell(
                         title: "注销",
@@ -134,7 +138,7 @@ class PersonalPageState extends State<PersonalPage> {
               ),
               Positioned(
                 right: 10,
-                top: 40,
+                top: ScreenAdaper.height(40),
                 child: Image.asset(
                   "assets/images/camera.png",
                   width: 25,

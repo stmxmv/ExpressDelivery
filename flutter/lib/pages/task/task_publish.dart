@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:math';
 
-import 'package:express_delivery/address/choose_address_list.dart';
-import 'package:express_delivery/models/address_manager.dart';
+import 'package:express_delivery/pages/address/choose_address_list.dart';
+import 'package:express_delivery/services/address_manager.dart';
 import 'package:express_delivery/models/express_station.dart';
 import 'package:express_delivery/models/task.dart';
+import 'package:express_delivery/services/express_station_service.dart';
+import 'package:express_delivery/services/screenAdaper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +14,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_spinbox/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_pickers/pickers.dart';
+
+import '../../services/task_service.dart';
 
 class TaskPublish extends StatefulWidget {
   const TaskPublish({super.key});
@@ -24,8 +29,8 @@ class TaskPublishState extends State<TaskPublish> {
 
   var bountyTextFieldController = TextEditingController(text: "0.00");
 
-  double? bounty;
-  double weight = 0.0;
+  double bounty = 0.0;
+  int weight = 0;
 
   TaskValue taskValue = TaskValue.low;
 
@@ -35,11 +40,31 @@ class TaskPublishState extends State<TaskPublish> {
 
   @override
   void initState() {
+    bountyFocusNode.addListener(_handleBountyFocus);
+
     AddressManager().getDefaultAddressInfo().then((value) {
       if (mounted) {
         setState(() {
           currentAddressInfo = value;
         });
+      }
+    }).catchError((error, stack) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("获取地址信息失败")));
+      }
+    });
+    ExpressStationService().getStationList().then((value) {
+      if (mounted) {
+        setState(() {
+          stations = value;
+          station = stations?[0];
+        });
+      }
+    }).catchError((error, stack) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("获取驿站信息失败")));
       }
     });
     super.initState();
@@ -47,6 +72,7 @@ class TaskPublishState extends State<TaskPublish> {
 
   @override
   void dispose() {
+    bountyFocusNode.removeListener(_handleBountyFocus);
     for (var node in taskItemCommentFocusNodes) {
       node.dispose();
     }
@@ -58,12 +84,9 @@ class TaskPublishState extends State<TaskPublish> {
 
   DateTime finaldate = DateTime.now();
 
-  List<ExpressStation> stations = [
-    ExpressStation(0, "深大沧海校区菜鸟驿站", "深大沧海校区"),
-    ExpressStation(1, "深大粤海校区菜鸟驿站", "深大粤海校区")
-  ];
+  List<ExpressStation>? stations;
 
-  ExpressStation station = ExpressStation(0, "深大沧海校区菜鸟驿站", "深大沧海校区");
+  ExpressStation? station;
 
   TextEditingController commentTextEditingController = TextEditingController();
   FocusNode commentFocusNode = FocusNode();
@@ -74,6 +97,47 @@ class TaskPublishState extends State<TaskPublish> {
   ];
 
   List<TaskItemInfo> taskItemInfos = [TaskItemInfo("")];
+
+  void _handleBountyFocus() {
+    if (!bountyFocusNode.hasFocus) {
+      if (bountyTextFieldController.value.text.isEmpty) {
+        setState(() {
+          bountyTextFieldController.value = const TextEditingValue(
+              text: "0.00", selection: TextSelection.collapsed(offset: 0));
+        });
+      }
+    }
+  }
+
+  Future<bool> _doPublishTask() async {
+    if (station == null) {
+      return Future.error("不存在驿站信息");
+    }
+    if (currentAddressInfo == null) {
+      return Future.error("不存在地址信息");
+    }
+
+    List<TaskAddExpressDescriptor> expressDescriptors = [];
+
+    for (var item in taskItemInfos) {
+      expressDescriptors
+          .add(TaskAddExpressDescriptor(descripton: item.description));
+    }
+
+    var address = currentAddressInfo!.area + currentAddressInfo!.detail;
+    TaskPublishDescriptor descriptor = TaskPublishDescriptor(
+        stationId: station!.id,
+        address: address,
+        weight: weight,
+        doorTime: finaldate,
+        expressNum: taskItemInfos.length,
+        comment: commentTextEditingController.text,
+        reward: bounty,
+        expressDescriptors: expressDescriptors,
+        value: taskValue);
+
+    return await TaskService().publishTask(descriptor);
+  }
 
   Widget taskItemInput(int index) {
     assert(index >= 1);
@@ -125,10 +189,10 @@ class TaskPublishState extends State<TaskPublish> {
             focusNode: taskItemCommentFocusNodes[index],
             keyboardType: TextInputType.multiline,
             maxLines: 10,
-            minLines: 2,
+            minLines: 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: '请输入需要代领的快递的基本信息（如货架，取件码等）',
+              hintText: '请输入代领快递的基本信息（如取件码等）',
             ),
             onChanged: (value) {
               taskItemInfos[index].description = value;
@@ -149,7 +213,7 @@ class TaskPublishState extends State<TaskPublish> {
           });
         }, onChanged: (p, pos) {});
       },
-      child: Text(station.name),
+      child: Text(station?.name ?? " 加载中"),
     );
   }
 
@@ -221,6 +285,7 @@ class TaskPublishState extends State<TaskPublish> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenAdaper.init(context);
     var date = DateFormat('yyyy-MM-dd - kk:mm').format(finaldate);
     return keyboardDismisser(
         context,
@@ -232,7 +297,24 @@ class TaskPublishState extends State<TaskPublish> {
               actions: [
                 IconButton(
                   icon: const Text("发布"),
-                  onPressed: () {},
+                  onPressed: () async {
+                    try {
+                      bool result = await _doPublishTask();
+                      if (result && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('发布成功')));
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('发布失败')));
+                      }
+                    } catch (error) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error.toString())));
+                      }
+                    }
+                  },
                 )
               ],
             ),
@@ -290,11 +372,14 @@ class TaskPublishState extends State<TaskPublish> {
                               focusNode: taskItemCommentFocusNodes[0],
                               keyboardType: TextInputType.multiline,
                               maxLines: 10,
-                              minLines: 2,
+                              minLines: 1,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: '请输入需要代领的快递的基本信息（如货架，取件码等）',
+                                hintText: '请输入代领快递的基本信息（如取件码等）',
                               ),
+                              onChanged: (value) {
+                                taskItemInfos[0].description = value;
+                              },
                             ),
                           ),
                         ]),
@@ -357,9 +442,12 @@ class TaskPublishState extends State<TaskPublish> {
                               textAlign: TextAlign.center,
                               style: const TextStyle(fontSize: 30),
                               decoration: null,
-                              keyboardType: TextInputType.number,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               inputFormatters: [
-                                DecimalTextInputFormatter(decimalRange: 2),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d+\.?\d{0,2}'))
                               ],
                               maxLength: 10,
                               controller: bountyTextFieldController,
@@ -479,14 +567,14 @@ class TaskPublishState extends State<TaskPublish> {
                               ),
                               const Text("重量   "),
                               SizedBox(
-                                width: 300,
+                                width: ScreenAdaper.width(250),
                                 child: CupertinoSpinBox(
                                   suffix: const Text("kg"),
                                   min: 1,
                                   max: double.maxFinite,
-                                  value: weight,
+                                  value: weight.toDouble(),
                                   onChanged: (value) {
-                                    weight = value;
+                                    weight = value.toInt();
                                   },
                                 ),
                               ),

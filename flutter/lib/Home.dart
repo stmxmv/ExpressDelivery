@@ -1,9 +1,9 @@
-import 'package:express_delivery/HomePage.dart';
-import 'package:express_delivery/personal_page.dart';
-import 'package:express_delivery/task/task_status.dart';
+import 'package:express_delivery/pages/HomePage.dart';
+import 'package:express_delivery/pages/personal_page.dart';
+import 'package:express_delivery/pages/task/task_status.dart';
 import 'package:flutter/material.dart';
 
-import 'task/task_gallery.dart';
+import 'pages/task/task_gallery.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
