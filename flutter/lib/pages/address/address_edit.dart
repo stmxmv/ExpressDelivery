@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:city_pickers/city_pickers.dart';
 import 'package:dio/dio.dart';
 
-import '../../services/screenAdaper.dart';
+import '../../services/screenAdapter.dart';
 import '../../widgets/ANButton.dart';
 import '../../widgets/ANText.dart';
 
@@ -41,7 +41,6 @@ class _AddressEditPageState extends State<AddressEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenAdaper.init(context);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
@@ -73,7 +72,7 @@ class _AddressEditPageState extends State<AddressEditPage> {
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.only(left: 5),
-                  height: ScreenAdaper.height(68),
+                  height: ScreenAdapter().height(68),
                   decoration: const BoxDecoration(
                       border: Border(
                           bottom: BorderSide(width: 1, color: Colors.black12))),

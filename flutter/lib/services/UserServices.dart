@@ -1,3 +1,4 @@
+import '../models/User.dart';
 import '../services/Storage.dart';
 import 'dart:convert';
 
@@ -48,5 +49,33 @@ class UserServices {
 
   void loginOut() {
     Storage().remove('userInfo');
+  }
+
+  Future<bool> hasPostmanEntitlement() async {
+    var id = await Storage().getString('user_id');
+    if (id == "1") {
+      return true;
+    }
+    return false;
+  }
+
+  Future<User> getPostmanById(int id) async {
+    // TODO
+
+    return const User(
+        id: 3,
+        username: "快递员名",
+        nickname: "快递员昵称",
+        email: "123@example.com",
+        phone: "123123123");
+  }
+
+  Future<void> debugSwitchAccount() async {
+    var id = await Storage().getString('user_id');
+    if (id == "1") {
+      Storage().setString('user_id', 0.toString());
+    } else {
+      Storage().setString('user_id', 1.toString());
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:express_delivery/pages/task/task_status.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/task/task_gallery.dart';
+import 'services/screenAdapter.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -53,6 +54,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenAdapter.init(context);
     return Scaffold(
       body: PageView(
         controller: _pageController,

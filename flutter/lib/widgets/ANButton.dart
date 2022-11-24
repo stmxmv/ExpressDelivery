@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../services/screenAdaper.dart';
+import '../services/screenAdapter.dart';
 
 class ANButton extends StatelessWidget {
   final Color color;
@@ -22,7 +22,7 @@ class ANButton extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(5),
         padding: const EdgeInsets.all(5),
-        height: ScreenAdaper.height(height),
+        height: ScreenAdapter().height(height),
         width: double.infinity,
         decoration: BoxDecoration(
             color: color, borderRadius: BorderRadius.circular(10)),

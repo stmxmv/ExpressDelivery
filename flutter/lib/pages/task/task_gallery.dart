@@ -1,5 +1,6 @@
 import 'package:express_delivery/models/task.dart';
-import 'package:express_delivery/services/screenAdaper.dart';
+import 'package:express_delivery/services/screenAdapter.dart';
+import 'package:express_delivery/services/task_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +28,7 @@ class TaskGalleryState extends State<TaskGallery>
   @override
   void initState() {
     super.initState();
-    tasks = fetchTasks();
+    tasks = TaskService().fetchAvailableTasks();
   }
 
   Widget detailText(String text) {
@@ -40,7 +41,7 @@ class TaskGalleryState extends State<TaskGallery>
 
   Future<void> _pullRefresh() async {
     try {
-      tasks = fetchTasks();
+      tasks = TaskService().fetchAvailableTasks();
       await tasks;
       setState(() {});
     } catch (error) {
@@ -52,34 +53,35 @@ class TaskGalleryState extends State<TaskGallery>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("任务广场"),
-        centerTitle: true,
-        // actions: <Widget>[
-        // IconButton(
-        //   icon: const Icon(Icons.add),
-        //   onPressed: () {
-        //     Navigator.push(context, CupertinoPageRoute(builder: (context) {
-        //       return const AddTask();
-        //     }));
-        //   },
-        // )
-        // ],
-      ),
-      body: FutureBuilder(
-        future: tasks,
-        builder: (context, snapshot) {
-          return RefreshIndicator(
-            onRefresh: _pullRefresh,
-            child: _listView(snapshot),
-          );
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: const Text("任务广场"),
+          centerTitle: true,
+          // actions: <Widget>[
+          // IconButton(
+          //   icon: const Icon(Icons.add),
+          //   onPressed: () {
+          //     Navigator.push(context, CupertinoPageRoute(builder: (context) {
+          //       return const AddTask();
+          //     }));
+          //   },
+          // )
+          // ],
+        ),
+        body: Container(
+          decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),
+          child: FutureBuilder(
+            future: tasks,
+            builder: (context, snapshot) {
+              return RefreshIndicator(
+                onRefresh: _pullRefresh,
+                child: _listView(snapshot),
+              );
+            },
+          ),
+        ));
   }
 
   Widget _listView(AsyncSnapshot<List<Task>> snapshot) {
-    ScreenAdaper.init(context);
     if (snapshot.hasData) {
       List<Task> tasks = snapshot.data!;
 
@@ -113,85 +115,96 @@ class TaskGalleryState extends State<TaskGallery>
                     });
                   },
                   child: Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ScreenAdapter().width(5),
+                        horizontal: ScreenAdapter().height(10)),
                     decoration: BoxDecoration(
-                        color: (hover == true && hoverIndex == index)
-                            ? Colors.black26
-                            : null,
-                        border: const Border(
-                            top: BorderSide(color: Colors.black12),
-                            bottom: BorderSide(color: Colors.black12))),
-                    child: Row(
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(minHeight: 100),
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: ScreenAdaper.height(4),
-                              ),
-                              Row(
+                      color: (hover == true && hoverIndex == index)
+                          ? Colors.black26
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Container(
+                        margin: EdgeInsets.all(ScreenAdapter().width(10)),
+                        child: Row(
+                          children: [
+                            Container(
+                              constraints: const BoxConstraints(minHeight: 100),
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "发布者ID ${tasks[index].userId}",
-                                    style:
-                                        Theme.of(context).textTheme.titleSmall,
-                                  ),
                                   SizedBox(
-                                    width: ScreenAdaper.width(30),
+                                    height: ScreenAdapter().height(4),
                                   ),
-                                  Text("快递数量 ${tasks[index].expressNum}")
-                                ],
-                              ),
-                              Container(
-                                constraints: BoxConstraints(
-                                    maxWidth: ScreenAdaper.width(250)),
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Row(
                                     children: [
-                                      detailText(
-                                        "重量: ${tasks[index].weight} kg",
-                                      ),
-                                      detailText(
-                                        "珍贵程度: ${tasks[index].taskValue.description}",
-                                      ),
-                                      detailText(
-                                        "创建时间 ${DateFormat('yyyy-MM-dd - kk:mm').format(tasks[index].createTime)}",
-                                      ),
-                                      detailText(
-                                        "地址: ${tasks[index].address}",
+                                      Text(
+                                        "发布者ID ${tasks[index].userId}",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall,
                                       ),
                                       SizedBox(
-                                        width: ScreenAdaper.width(300),
-                                        child: Text(
-                                          "备注: ${tasks[index].comment}",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .caption,
-                                        ),
+                                        width: ScreenAdapter().width(30),
                                       ),
-                                    ]),
+                                      Text("快递数量 ${tasks[index].expressNum}")
+                                    ],
+                                  ),
+                                  Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: ScreenAdapter().width(200)),
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          detailText(
+                                            "重量: ${tasks[index].weight} kg",
+                                          ),
+                                          detailText(
+                                            "珍贵程度: ${tasks[index].taskValue.description}",
+                                          ),
+                                          detailText(
+                                            "创建时间 ${DateFormat('yyyy-MM-dd - kk:mm').format(tasks[index].createTime)}",
+                                          ),
+                                          detailText(
+                                            "地址: ${tasks[index].address}",
+                                          ),
+                                          // SizedBox(
+                                          //   width: ScreenAdaper.width(300),
+                                          //   child: Text(
+                                          //     "备注: ${tasks[index].comment}",
+                                          //     overflow: TextOverflow.ellipsis,
+                                          //     style: Theme.of(context)
+                                          //         .textTheme
+                                          //         .caption,
+                                          //   ),
+                                          // ),
+                                        ]),
+                                  ),
+                                  SizedBox(
+                                    height: ScreenAdapter().height(4),
+                                  ),
+                                ],
                               ),
-                              SizedBox(
-                                height: ScreenAdaper.height(4),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: ScreenAdaper.width(100),
-                          child: Text(
-                            "赏金: ${tasks[index].reward} 元",
-                            style: const TextStyle(color: Colors.amber),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        )
-                      ],
-                    ),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: ScreenAdapter().width(90),
+                              child: Center(
+                                  child: Text(
+                                "¥ ${tasks[index].reward}",
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.red,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              )),
+                            )
+                          ],
+                        )),
                   ),
                 );
               }));

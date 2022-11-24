@@ -52,6 +52,40 @@ class TaskService {
     return Future.error("cannot add express");
   }
 
+  Future<List<Task>> fetchAvailableTasks() async {
+    try {
+      final response = await Request().get("/express/task/getTaskAvailable",
+          options: Options(
+              followRedirects: false,
+              validateStatus: (status) {
+                return status == 200;
+              }));
+
+      // final response = await http
+      // .get(Uri.parse('http://10.0.2.2:8080/user/page?page=1&size=10'));
+
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+
+      final List<dynamic> records = response.data['data'];
+
+      List<Task> ret = [];
+
+      for (var record in records) {
+        Task user = Task.fromJson(record);
+        ret.add(user);
+      }
+
+      return ret;
+    } on DioError catch (error) {
+      if (error.response?.statusCode == 404) {
+        return Future.error("404");
+      } else {
+        return Future.error("获取任务列表失败 ");
+      }
+    }
+  }
+
   Future<bool> acceptTask(int taskId) async {
     try {
       int userId = await UserServices().getUserId();

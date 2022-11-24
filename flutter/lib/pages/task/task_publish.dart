@@ -6,7 +6,7 @@ import 'package:express_delivery/services/address_manager.dart';
 import 'package:express_delivery/models/express_station.dart';
 import 'package:express_delivery/models/task.dart';
 import 'package:express_delivery/services/express_station_service.dart';
-import 'package:express_delivery/services/screenAdaper.dart';
+import 'package:express_delivery/services/screenAdapter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +14,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_spinbox/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_pickers/pickers.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../services/task_service.dart';
 
@@ -192,7 +193,7 @@ class TaskPublishState extends State<TaskPublish> {
             minLines: 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: '请输入代领快递的基本信息（如取件码等）',
+              hintText: '请输入代领快递的取件码',
             ),
             onChanged: (value) {
               taskItemInfos[index].description = value;
@@ -285,7 +286,6 @@ class TaskPublishState extends State<TaskPublish> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenAdaper.init(context);
     var date = DateFormat('yyyy-MM-dd - kk:mm').format(finaldate);
     return keyboardDismisser(
         context,
@@ -375,7 +375,7 @@ class TaskPublishState extends State<TaskPublish> {
                               minLines: 1,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: '请输入代领快递的基本信息（如取件码等）',
+                                hintText: '请输入代领快递的取件码',
                               ),
                               onChanged: (value) {
                                 taskItemInfos[0].description = value;
@@ -552,7 +552,27 @@ class TaskPublishState extends State<TaskPublish> {
                                 width: 15,
                               ),
                               const Text("珍贵程度   "),
-                              _selectValue(),
+                              // _selectValue(),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: ToggleSwitch(
+                                  initialLabelIndex: taskValue.index,
+                                  totalSwitches: TaskValue.values.length,
+                                  inactiveBgColor: Colors.white,
+                                  borderColor: const [
+                                    Colors.black12,
+                                    Colors.black12,
+                                    Colors.black12
+                                  ],
+                                  borderWidth: 0.2,
+                                  labels: const ['低', '中', '高'],
+                                  onToggle: (index) {
+                                    if (index != null) {
+                                      taskValue = TaskValue.values[index];
+                                    }
+                                  },
+                                ),
+                              )
                             ],
                           )),
                       Container(
@@ -567,7 +587,7 @@ class TaskPublishState extends State<TaskPublish> {
                               ),
                               const Text("重量   "),
                               SizedBox(
-                                width: ScreenAdaper.width(250),
+                                width: ScreenAdapter().width(250),
                                 child: CupertinoSpinBox(
                                   suffix: const Text("kg"),
                                   min: 1,

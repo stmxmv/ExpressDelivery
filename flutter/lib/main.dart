@@ -1,10 +1,14 @@
 import 'package:express_delivery/services/UserServices.dart';
+import 'package:express_delivery/services/screenAdapter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Home.dart';
 
 void main() async {
-  await ScreenUtil.ensureScreenSize();
+  await ScreenAdapter.ensureScreenSize();
+
+  WidgetsFlutterBinding.ensureInitialized();
 
   /// TODO remove this line
   UserServices().login();
@@ -34,6 +38,16 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: const Home(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', 'US'), // 美国英语
+        Locale('zh', 'CN'), // 中文简体
+        //其他Locales
+      ],
     );
   }
 }

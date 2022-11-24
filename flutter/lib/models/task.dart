@@ -1,7 +1,14 @@
 import 'dart:convert';
 import '../services/request.dart';
 
-enum TaskState { pending, accepted, complete }
+enum TaskState {
+  pending("等待接受"),
+  accepted("配送中"),
+  complete("已完成");
+
+  const TaskState(this.description);
+  final String description;
+}
 
 enum TaskValue {
   low("低"),
@@ -15,6 +22,7 @@ enum TaskValue {
 class Task {
   final int id;
   final int userId;
+  final int? postmanId;
   final int expressNum;
   final double weight;
   final double reward;
@@ -30,72 +38,42 @@ class Task {
   final TaskState state;
 
   // constructor
-  const Task(
-      this.userId,
-      this.expressNum,
-      this.weight,
-      this.reward,
-      this.address,
-      this.doorTime,
-      this.createTime,
-      this.acceptTime,
-      this.completeTime,
-      this.comment,
-      this.taskValue,
-      this.state,
-      {required this.id});
+  const Task({
+    required this.id,
+    required this.userId,
+    required this.expressNum,
+    required this.weight,
+    required this.reward,
+    required this.address,
+    required this.doorTime,
+    required this.createTime,
+    this.acceptTime,
+    this.completeTime,
+    this.postmanId,
+    required this.comment,
+    required this.taskValue,
+    required this.state,
+  });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-        json['userId'],
-        json['expressNum'],
-        double.parse(json['weight']),
-        double.parse(json['reward']),
-        json['address'],
-        DateTime.parse(json['doorTime']),
-        DateTime.parse(json['createTime']),
-        json['dacceptTime'] == null ? null : DateTime.parse(json['acceptTime']),
-        json['completeTime'] == null
+        userId: json['userId'],
+        expressNum: json['expressNum'],
+        weight: double.parse(json['weight']),
+        reward: double.parse(json['reward']),
+        address: json['address'],
+        doorTime: DateTime.parse(json['doorTime']),
+        createTime: DateTime.parse(json['createTime']),
+        acceptTime: json['dacceptTime'] == null
+            ? null
+            : DateTime.parse(json['acceptTime']),
+        completeTime: json['completeTime'] == null
             ? null
             : DateTime.parse(json['completeTime']),
-        json['comment'],
-        TaskValue.values[json['value']],
-        TaskState.values[json['state']],
+        comment: json['comment'],
+        taskValue: TaskValue.values[json['value']],
+        state: TaskState.values[json['state']],
         id: json['id']);
-  }
-}
-
-Future<List<Task>> fetchTasks() async {
-  try {
-    final response = await Request().get("/express/task/getTaskAvailable",
-        options: Options(
-            followRedirects: false,
-            validateStatus: (status) {
-              return status == 200;
-            }));
-
-    // final response = await http
-    // .get(Uri.parse('http://10.0.2.2:8080/user/page?page=1&size=10'));
-
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-
-    final List<dynamic> records = response.data['data'];
-
-    List<Task> ret = [];
-
-    for (var record in records) {
-      Task user = Task.fromJson(record);
-      ret.add(user);
-    }
-
-    return ret;
-  } on DioError catch (error) {
-    if (error.response?.statusCode == 404) {
-      return Future.error("404");
-    } else {
-      return Future.error("获取任务列表失败 ");
-    }
   }
 }
 

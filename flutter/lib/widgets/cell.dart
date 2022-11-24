@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class Cell extends StatefulWidget {
@@ -5,13 +7,15 @@ class Cell extends StatefulWidget {
   final String? imageName;
   final String? subTitle;
   final String? subImageName;
+  final void Function()? onTap;
 
   const Cell(
       {super.key,
       required this.title,
       required this.imageName,
       this.subTitle,
-      this.subImageName})
+      this.subImageName,
+      this.onTap})
       : assert(title != null, "title 不能为空"),
         assert(imageName != null, "imageName 不能为空");
 
@@ -20,15 +24,33 @@ class Cell extends StatefulWidget {
 }
 
 class _CellState extends State<Cell> {
+  bool hover = false;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {},
-        onTapCancel: () {},
-        onTapDown: (TapDownDetails details) {},
+        onTap: () {
+          setState(() {
+            hover = false;
+          });
+          var onTap = widget.onTap;
+          if (onTap != null) {
+            onTap();
+          }
+        },
+        onTapCancel: () {
+          setState(() {
+            hover = false;
+          });
+        },
+        onTapDown: (TapDownDetails details) {
+          setState(() {
+            hover = true;
+          });
+        },
         child: Container(
           height: 55,
-          color: Colors.white,
+          color: hover ? Colors.black12 : Colors.white,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

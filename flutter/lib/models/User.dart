@@ -8,20 +8,21 @@ class User {
   final String nickname;
   final String email;
   final String phone;
-  final String address;
 
-  const User(
-    this.username,
-    this.nickname,
-    this.email,
-    this.phone,
-    this.address, {
+  const User({
     required this.id,
+    required this.username,
+    required this.nickname,
+    required this.email,
+    required this.phone,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(json['username'], json['nickname'], json['email'],
-        json['phone'], json['address'],
+    return User(
+        username: json['username'],
+        nickname: json['nickname'],
+        email: json['email'],
+        phone: json['phone'],
         id: json['id']);
   }
 }

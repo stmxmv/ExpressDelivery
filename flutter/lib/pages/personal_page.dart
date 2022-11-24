@@ -1,4 +1,5 @@
-import 'package:express_delivery/services/screenAdaper.dart';
+import 'package:express_delivery/services/UserServices.dart';
+import 'package:express_delivery/services/screenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -78,7 +79,6 @@ class PersonalPageState extends State<PersonalPage> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenAdaper.init(context);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return Scaffold(
       body: Container(
@@ -92,14 +92,14 @@ class PersonalPageState extends State<PersonalPage> {
                     child: ListView(children: [
                       headerWidget(),
                       SizedBox(
-                        height: ScreenAdaper.height(10),
+                        height: ScreenAdapter().height(10),
                       ),
                       const Cell(
                         title: "我的订单",
                         imageName: "assets/images/order.png",
                       ),
                       SizedBox(
-                        height: ScreenAdaper.height(10),
+                        height: ScreenAdapter().height(10),
                       ),
                       const Cell(
                         title: "客服",
@@ -128,17 +128,22 @@ class PersonalPageState extends State<PersonalPage> {
                         imageName: "assets/images/earth.png",
                       ),
                       SizedBox(
-                        height: ScreenAdaper.height(10),
+                        height: ScreenAdapter().height(10),
                       ),
-                      const Cell(
+                      Cell(
                         title: "注销",
                         imageName: "assets/images/signout.png",
+                        onTap: () async {
+                          await UserServices().debugSwitchAccount();
+                          var id = await UserServices().getUserId();
+                          print(id);
+                        },
                       )
                     ])),
               ),
               Positioned(
                 right: 10,
-                top: ScreenAdaper.height(40),
+                top: ScreenAdapter().height(40),
                 child: Image.asset(
                   "assets/images/camera.png",
                   width: 25,

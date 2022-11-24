@@ -2,7 +2,7 @@ import 'package:city_pickers/city_pickers.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/address_manager.dart';
-import '../../services/screenAdaper.dart';
+import '../../services/screenAdapter.dart';
 import '../../widgets/ANButton.dart';
 import '../../widgets/ANText.dart';
 
@@ -21,7 +21,6 @@ class AddressAddState extends State<AddressAdd> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenAdaper.init(context);
     return Scaffold(
         appBar: AppBar(
           title: const Text("增加收件地址"),
@@ -51,7 +50,7 @@ class AddressAddState extends State<AddressAdd> {
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.only(left: 5),
-                  height: ScreenAdaper.height(68),
+                  height: ScreenAdapter().height(68),
                   decoration: const BoxDecoration(
                       border: Border(
                           bottom: BorderSide(width: 1, color: Colors.black12))),

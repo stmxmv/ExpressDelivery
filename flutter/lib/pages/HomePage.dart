@@ -1,4 +1,7 @@
+import 'package:express_delivery/pages/postman_center.dart';
 import 'package:express_delivery/pages/task/task_publish.dart';
+import 'package:express_delivery/services/UserServices.dart';
+import 'package:express_delivery/services/screenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -14,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Widget mainButton(
     BuildContext context,
-    String label,
+    Widget child,
     Color color,
     double width,
     double height,
@@ -29,13 +32,45 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: color,
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(20)))),
-        child: Text(
-          label,
-          style: TextStyle(
-              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
-              color: Colors.white),
-        ),
+        child: child,
       ),
+    );
+  }
+
+  void showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text("取消"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: const Text("继续"),
+      onPressed: () {
+        Navigator.of(context).pop();
+        Navigator.push(context, CupertinoPageRoute(builder: (context) {
+          return const PostmanCenter();
+        }));
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("提示"),
+      content: const Text("你现在还未有快递员资格，是否继续注册成为快递员？"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 
@@ -74,56 +109,132 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
-        body: LayoutBuilder(
-          builder: (context, constraint) {
-            final buttonWidth = constraint.biggest.width * 0.4;
-            final buttonHeight = buttonWidth * 0.75;
-
-            return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      mainButton(context, "任务广场", const Color(0xFF3F94E5),
-                          buttonWidth, buttonHeight, () {
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: (context) {
-                          return const TaskGallery();
-                        }));
-                      }),
-                      SizedBox(
-                        width: buttonWidth * 0.25,
-                      ),
-                      mainButton(context, "快递员列表", const Color(0xFF81B336),
-                          buttonWidth, buttonHeight, () {}),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      mainButton(context, "成为快递员", const Color(0xFF94DEF4),
-                          buttonWidth, buttonHeight, () {}),
-                      SizedBox(
-                        width: buttonWidth * 0.25,
-                      ),
-                      mainButton(context, "发布任务", const Color(0xFFFEBF6B),
-                          buttonWidth, buttonHeight, () {
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: (context) {
-                          return const TaskPublish();
-                        }));
-                      }),
-                    ],
-                  )
-                ]);
-          },
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: ScreenAdapter().height(20),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                mainButton(
+                    context,
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            "任务广场",
+                            style: TextStyle(
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .fontSize,
+                                color: Colors.white),
+                          ),
+                          const Icon(Icons.task)
+                        ]),
+                    const Color(0xFF3F94E5),
+                    150,
+                    108 * 2 + 20, () {
+                  Navigator.push(context,
+                      CupertinoPageRoute(builder: (context) {
+                    return const TaskGallery();
+                  }));
+                }),
+                SizedBox(
+                  width: ScreenAdapter().width(20),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    mainButton(
+                        context,
+                        Text(
+                          "未定",
+                          style: TextStyle(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .fontSize,
+                              color: Colors.white),
+                        ),
+                        const Color(0xFF81B336),
+                        150,
+                        108,
+                        () {}),
+                    SizedBox(
+                      height: ScreenAdapter().height(20),
+                    ),
+                    mainButton(
+                        context,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              "发布任务",
+                              style: TextStyle(
+                                  fontSize: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .fontSize,
+                                  color: Colors.white),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 70),
+                              child: Icon(Icons.publish),
+                            )
+                          ],
+                        ),
+                        const Color(0xFFFEBF6B),
+                        150,
+                        108, () {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                        return const TaskPublish();
+                      }));
+                    }),
+                  ],
+                )
+              ],
+            ),
+            SizedBox(
+              height: ScreenAdapter().height(20),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                mainButton(
+                    context,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            "快递员中心",
+                            style: TextStyle(
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .fontSize,
+                                color: Colors.white),
+                          ),
+                          const Icon(Icons.delivery_dining)
+                        ]),
+                    const Color(0xFF94DEF4),
+                    324,
+                    108, () async {
+                  if (await UserServices().hasPostmanEntitlement()) {
+                    Navigator.push(context,
+                        CupertinoPageRoute(builder: (context) {
+                      return const PostmanCenter();
+                    }));
+                  } else {
+                    showAlertDialog(context);
+                  }
+                }),
+              ],
+            )
+          ],
         ));
   }
 }

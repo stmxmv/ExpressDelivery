@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../services/screenAdaper.dart';
+import '../services/screenAdapter.dart';
 
 class ANText extends StatelessWidget {
   final String text;
@@ -23,7 +23,7 @@ class ANText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: ScreenAdaper.height(height),
+      height: ScreenAdapter().height(height),
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(width: 1, color: Colors.black12))),
       child: TextField(

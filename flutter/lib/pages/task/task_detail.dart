@@ -1,4 +1,4 @@
-import 'package:express_delivery/services/screenAdaper.dart';
+import 'package:express_delivery/services/screenAdapter.dart';
 import 'package:express_delivery/services/task_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +17,6 @@ class TaskDetail extends StatefulWidget {
 class _TaskDetailState extends State<TaskDetail> {
   @override
   Widget build(BuildContext context) {
-    ScreenAdaper.init(context);
     var doorTime =
         DateFormat('yyyy-MM-dd - kk:mm').format(widget.task.doorTime);
     return Scaffold(
@@ -82,17 +81,14 @@ class _TaskDetailState extends State<TaskDetail> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   FittedBox(
-                    child: SizedBox(
-                        width: ScreenAdaper.width(100),
-                        child: Text('¥ ${widget.task.reward}',
-                            style: const TextStyle(fontSize: 30.0))),
-                  ),
+                      child: Text('¥ ${widget.task.reward}',
+                          style: const TextStyle(fontSize: 30.0))),
                   GestureDetector(
                     child: Container(
                       //margin: EdgeInsets.fromLTRB(50, 50, 50, 50),
                       alignment: Alignment.center,
-                      width: ScreenAdaper.width(200),
-                      height: ScreenAdaper.height(50),
+                      width: ScreenAdapter().width(200),
+                      height: ScreenAdapter().height(50),
                       decoration: BoxDecoration(
                           color: Colors.yellow,
                           borderRadius: BorderRadius.circular(10)),
