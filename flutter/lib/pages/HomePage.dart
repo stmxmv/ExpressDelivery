@@ -151,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                     mainButton(
                         context,
                         Text(
-                          "未定",
+                          "活动中心",
                           style: TextStyle(
                               fontSize: Theme.of(context)
                                   .textTheme
