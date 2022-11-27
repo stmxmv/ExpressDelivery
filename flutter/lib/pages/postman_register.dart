@@ -64,6 +64,37 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
     return gesture;
   }
 
+  void showAgreeMentAlertDialog(BuildContext context) {
+    // set up the buttons
+
+    Widget continueButton = TextButton(
+      child: const Text("确定"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("平台协议"),
+      content: const SingleChildScrollView(
+        child: Text(
+            "各效劳条款前所列索引关键词仅为协助您了解该条款表达的宗旨之用，不影响或限制本协议条款的含义或解释。为维护您本身权益，倡议您认真阅读各条款详细表述。 【审慎阅读】您在申请注册流程中点击同意本协议之前，应当认真阅读本协议。请您务必审慎阅读、充沛了解各条款内容，特别是免除或者限制义务的条款、法律适用和争议处理条款。免除或者限制义务的条款将以粗体下划线标识，您应重点阅读。如您对协议有任何疑问，可向快递代拿平台客服咨询。"),
+      ),
+      actions: [
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return _keyboardDismisser(
@@ -168,7 +199,8 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        launchUrl(Uri.parse('https://www.baidu.com'));
+                        // launchUrl(Uri.parse('https://www.baidu.com'));
+                        showAgreeMentAlertDialog(context);
                       },
                       child: const Text(
                         "阅读代拿人员协议",

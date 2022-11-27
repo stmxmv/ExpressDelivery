@@ -1,4 +1,5 @@
 import 'package:express_delivery/models/task.dart';
+import 'package:express_delivery/pages/task/task_status.dart';
 
 import 'UserServices.dart';
 import 'request.dart';
@@ -143,5 +144,33 @@ class TaskService {
     }
 
     return false;
+  }
+
+  Future<List<Task>> getTasks(bool postmanTask, TaskStatus status) async {
+    int userId = await UserServices().getUserId();
+
+    var data = {
+      "isDeliveryman": postmanTask,
+      "keyId": userId,
+      "status": status
+    };
+
+    Response response =
+        await Request().get("/express/task/getTasks", queryParameters: data);
+
+    if (response.data["msg"] != null && response.data["msg"] == "成功") {
+      final List<dynamic> records = response.data['data'];
+
+      List<Task> tasks = [];
+
+      for (var record in records) {
+        Task user = Task.fromJson(record);
+        tasks.add(user);
+      }
+
+      return tasks;
+    }
+
+    return Future.error("获取任务失败");
   }
 }

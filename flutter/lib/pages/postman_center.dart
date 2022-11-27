@@ -46,7 +46,6 @@ class _PostmanCenterRealPageState extends State<PostmanCenterRealPage> {
   Map<String, double> dataMap = {
     "点赞": 10,
     "拉黑": 3,
-    "一般": 2,
   };
 
   @override
@@ -62,7 +61,7 @@ class _PostmanCenterRealPageState extends State<PostmanCenterRealPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text("快递员ID"),
-              const Text("发布任务数量: 20"),
+              const Text("完成任务数量: 20"),
               const Text("个人信用状态： 良好"),
               SizedBox(
                 height: ScreenAdapter().height(20),

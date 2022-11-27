@@ -73,7 +73,7 @@ class UserServices {
   Future<void> debugSwitchAccount() async {
     var id = await Storage().getString('user_id');
     if (id == "1") {
-      Storage().setString('user_id', 0.toString());
+      Storage().setString('user_id', 2.toString());
     } else {
       Storage().setString('user_id', 1.toString());
     }

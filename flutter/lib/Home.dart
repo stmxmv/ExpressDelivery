@@ -47,7 +47,9 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const TaskStatus(),
+    const TaskStatus(
+      statusType: TaskStatusPageType.User,
+    ),
     const ErrorPage(),
     const PersonalPage()
   ];

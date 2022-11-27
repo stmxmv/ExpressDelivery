@@ -7,8 +7,11 @@ import 'package:intl/intl.dart';
 import '../../models/User.dart';
 import '../../models/task.dart';
 
+enum TaskStatusPageType { User, Postman }
+
 class TaskStatus extends StatefulWidget {
-  const TaskStatus({super.key});
+  final TaskStatusPageType statusType;
+  const TaskStatus({super.key, required this.statusType});
 
   @override
   State<StatefulWidget> createState() => TaskStatusState();

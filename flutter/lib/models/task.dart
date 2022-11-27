@@ -58,13 +58,14 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
         userId: json['userId'],
+        postmanId: json['courierId'],
         expressNum: json['expressNum'],
         weight: double.parse(json['weight']),
         reward: double.parse(json['reward']),
         address: json['address'],
         doorTime: DateTime.parse(json['doorTime']),
         createTime: DateTime.parse(json['createTime']),
-        acceptTime: json['dacceptTime'] == null
+        acceptTime: json['acceptTime'] == null
             ? null
             : DateTime.parse(json['acceptTime']),
         completeTime: json['completeTime'] == null
