@@ -36,6 +36,7 @@ class TaskAddExpressDescriptor {
 }
 
 class TaskService {
+  /// 私有方法，用于添加任务时，注册每一个快递信息
   Future<int> _addExpress(TaskAddExpressDescriptor descriptor) async {
     var data = {"description": descriptor.descripton};
 
@@ -53,6 +54,7 @@ class TaskService {
     return Future.error("cannot add express");
   }
 
+  /// 获取任务广场中可接受的任务
   Future<List<Task>> fetchAvailableTasks() async {
     try {
       final response = await Request().get("/express/task/getTaskAvailable",
@@ -87,6 +89,7 @@ class TaskService {
     }
   }
 
+  /// 接受任务
   Future<bool> acceptTask(int taskId) async {
     try {
       int userId = await UserServices().getUserId();
@@ -95,6 +98,24 @@ class TaskService {
 
       Response response =
           await Request().post("/express/task/acceptTask", data: data);
+      if (response.data["msg"] != null && response.data["code"] == "1111") {
+        return true;
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    return false;
+  }
+
+  Future<bool> userConfirmFinishTask(int taskId) async {
+    try {
+      int userId = await UserServices().getUserId();
+
+      var data = {"taskId": taskId};
+
+      Response response = await Request()
+          .post("/express/task/finishTask", queryParameters: data);
       if (response.data["msg"] != null && response.data["msg"] == "成功") {
         return true;
       }
@@ -105,6 +126,7 @@ class TaskService {
     return false;
   }
 
+  /// 发布任务
   Future<bool> publishTask(TaskPublishDescriptor descriptor) async {
     try {
       int userId = await UserServices().getUserId();
@@ -136,7 +158,7 @@ class TaskService {
       Response response =
           await Request().post("/express/task/releaseTask", data: data);
 
-      if (response.data["msg"] != null && response.data["msg"] == "成功") {
+      if (response.data["msg"] != null && response.data["code"] == "1111") {
         return true;
       }
     } catch (error) {
@@ -146,29 +168,35 @@ class TaskService {
     return false;
   }
 
-  Future<List<Task>> getTasks(bool postmanTask, TaskStatus status) async {
+  /// 获取指定任务状态的列表
+  Future<List<Task>> getTasks(bool postmanTask, TaskState status) async {
     int userId = await UserServices().getUserId();
 
     var data = {
       "isDeliveryman": postmanTask,
       "keyId": userId,
-      "status": status
+      "state": status.index
     };
 
-    Response response =
-        await Request().get("/express/task/getTasks", queryParameters: data);
+    try {
+      Response response =
+          await Request().get("/express/task/getTasks", queryParameters: data);
 
-    if (response.data["msg"] != null && response.data["msg"] == "成功") {
-      final List<dynamic> records = response.data['data'];
+      if (response.data["msg"] != null && response.data["msg"] == "成功") {
+        final List<dynamic> records = response.data['data'];
 
-      List<Task> tasks = [];
+        List<Task> tasks = [];
 
-      for (var record in records) {
-        Task user = Task.fromJson(record);
-        tasks.add(user);
+        for (var record in records) {
+          Task user = Task.fromJson(record);
+          tasks.add(user);
+        }
+
+        return tasks;
       }
-
-      return tasks;
+    } catch (error) {
+      print(error);
+      return Future.error(error);
     }
 
     return Future.error("获取任务失败");

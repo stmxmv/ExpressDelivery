@@ -1,3 +1,6 @@
+import 'package:express_delivery/models/postman.dart';
+import 'package:express_delivery/services/request.dart';
+
 import '../models/User.dart';
 import '../services/Storage.dart';
 import 'dart:convert';
@@ -12,6 +15,7 @@ class UserServices {
   }
 
   Future<int> getUserId() async {
+    /// 登陆后user id 保持到本地中获取
     // bool state = await getUserLoginState();
 
     // if (!state) {
@@ -21,28 +25,42 @@ class UserServices {
     return int.parse(id!);
   }
 
-  Future<List> getUserInfo() async {
-    List userinfo = [];
+  Future<User> getUserInfo() async {
+    var id = await Storage().getString('user_id');
+    var data = {"id": id};
     try {
-      String? jsonInfo = await Storage().getString('userInfo');
-      if (jsonInfo != null) {
-        List userInfoData = json.decode(jsonInfo);
-        userinfo = userInfoData;
+      Response response = await Request()
+          .get("/express/user/getUserInfo", queryParameters: data);
+
+      if (response.data != null && response.data['data'] != null) {
+        return User.fromJson(response.data['data']);
       }
     } catch (e) {
-      userinfo = [];
+      return Future.error(e);
     }
-    return userinfo;
+    return Future.error("获取用户信息失败");
   }
 
-  Future<bool> getUserLoginState() async {
-    var userInfo = await UserServices().getUserInfo();
-    if (userInfo.isNotEmpty && userInfo[0]["username"] != "") {
-      return true;
+  Future<Postman> getPostmanInfo() async {
+    User user = await getUserInfo();
+    if (user.postmanId != null) {
+      Postman postman = await getPostmanById(user.postmanId!);
+      return postman;
     }
-    return false;
+    return Future.error("该用户没有快递员ID");
   }
 
+  // Future<bool> getUserLoginState() async {
+  //   /// TODO
+
+  //   // var userInfo = await UserServices().getUserInfo();
+  //   // if (userInfo.isNotEmpty && userInfo[0]["username"] != "") {
+  //   //   return true;
+  //   // }
+  //   return false;
+  // }
+
+  /// TODO 登陆模块没做暂时使用本地数据
   void login() {
     Storage().setString('user_id', 1.toString());
   }
@@ -59,17 +77,33 @@ class UserServices {
     return false;
   }
 
-  Future<User> getPostmanById(int id) async {
-    // TODO
+  /// @id the postman id, 与user id 不同！
+  Future<Postman> getPostmanById(int id) async {
+    var data = {"id": id};
 
-    return const User(
-        id: 3,
-        username: "快递员名",
-        nickname: "快递员昵称",
-        email: "123@example.com",
-        phone: "123123123");
+    try {
+      Response response = await Request()
+          .get("/express/user/getDeliverymanInfo", queryParameters: data);
+
+      if (response.data['data'] != null) {
+        return Postman.fromJson(response.data['data']);
+      }
+    } catch (error) {
+      return Future.error(error);
+    }
+
+    return Future.error("获取代拿人员信息发生错误");
+
+    /// test hook
+    // return const User(
+    //     id: 3,
+    //     username: "快递员名",
+    //     nickname: "快递员昵称",
+    //     email: "123@example.com",
+    //     phone: "123123123");
   }
 
+  /// debug 测试用，转换普通用户和有代拿资格的用户
   Future<void> debugSwitchAccount() async {
     var id = await Storage().getString('user_id');
     if (id == "1") {

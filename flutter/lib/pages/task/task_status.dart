@@ -1,31 +1,92 @@
+import 'package:express_delivery/models/postman.dart';
+import 'package:express_delivery/models/task_state_model.dart';
 import 'package:express_delivery/services/UserServices.dart';
 import 'package:express_delivery/services/screenAdapter.dart';
+import 'package:express_delivery/services/task_service.dart';
 import 'package:express_delivery/widgets/ANButton.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/User.dart';
 import '../../models/task.dart';
 
 enum TaskStatusPageType { User, Postman }
 
-class TaskStatus extends StatefulWidget {
+class TaskStatusPage extends StatefulWidget {
   final TaskStatusPageType statusType;
-  const TaskStatus({super.key, required this.statusType});
+  const TaskStatusPage({super.key, required this.statusType});
 
   @override
-  State<StatefulWidget> createState() => TaskStatusState();
+  State<StatefulWidget> createState() => TaskStatusPageState();
 }
 
 class TaskStatusTile extends StatefulWidget {
   final Task task;
-  const TaskStatusTile({super.key, required this.task});
+  final TaskStatusPageType statusType;
+  const TaskStatusTile(
+      {super.key, required this.task, required this.statusType});
 
   @override
   State<StatefulWidget> createState() => TaskStatusTileState();
 }
 
 class TaskStatusTileState extends State<TaskStatusTile> {
+  late Future<Postman> postmanInfo;
+
+  void showFinishConfirmDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text("取消"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: const Text("是的"),
+      onPressed: () {
+        Navigator.of(context).pop();
+
+        if (widget.statusType == TaskStatusPageType.User) {
+          var taskStateModel =
+              Provider.of<TaskStateModel>(context, listen: false);
+          () async {
+            await TaskService().userConfirmFinishTask(widget.task.id);
+            taskStateModel.refresh();
+          }();
+        }
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("温馨提示"),
+      content: const Text("你确定有收到快递吗？"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.task.state == TaskState.accepted &&
+        widget.task.postmanId != null) {
+      postmanInfo = UserServices().getPostmanById(widget.task.postmanId!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -62,17 +123,24 @@ class TaskStatusTileState extends State<TaskStatusTile> {
                     softWrap: true,
                     style: const TextStyle(color: Colors.black45),
                   ),
+                  if (widget.task.state == TaskState.complete &&
+                      widget.task.completeTime != null)
+                    Text(
+                      '完成时间: ${DateFormat('yyyy-MM-dd - kk:mm').format(widget.task.completeTime!)}',
+                      softWrap: true,
+                      style: const TextStyle(color: Colors.black45),
+                    ),
                   Builder(builder: (context) {
-                    if (widget.task.state == TaskState.accepted &&
+                    if (widget.statusType == TaskStatusPageType.User &&
+                        widget.task.state == TaskState.accepted &&
                         widget.task.postmanId != null) {
                       return FutureBuilder(
-                          future: UserServices()
-                              .getPostmanById(widget.task.postmanId!),
+                          future: postmanInfo,
                           builder: ((context, snapshot) {
                             if (snapshot.hasData) {
-                              User postman = snapshot.data!;
+                              Postman postman = snapshot.data!;
                               return Text("代拿员联系电话 ${postman.phone}");
-                            }
+                            } else if (snapshot.hasError) {}
                             return const SizedBox.shrink();
                           }));
                     }
@@ -99,13 +167,17 @@ class TaskStatusTileState extends State<TaskStatusTile> {
                                     border: Border.all(color: Colors.redAccent),
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(30))),
-                                child: const Center(
+                                child: Center(
                                     child: Text(
-                                  '确认收货',
+                                  widget.statusType == TaskStatusPageType.User
+                                      ? "确认收货"
+                                      : "确认完成",
                                   style: TextStyle(color: Colors.redAccent),
                                 )),
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                showFinishConfirmDialog(context);
+                              },
                             ),
                           ),
                         ),
@@ -174,87 +246,8 @@ class TaskStatusTileState extends State<TaskStatusTile> {
   }
 }
 
-class TaskStatusState extends State<TaskStatus> {
-  // test data
-  static final List<Task> testTasksData = [
-    Task(
-        id: 123,
-        userId: 3,
-        expressNum: 2,
-        weight: 20,
-        reward: 16.3,
-        address: "深圳大学冬筑1428",
-        doorTime: DateTime.now(),
-        createTime: DateTime.now(),
-        comment: "一些备注",
-        taskValue: TaskValue.high,
-        state: TaskState.pending),
-    Task(
-        id: 124,
-        userId: 2,
-        expressNum: 2,
-        weight: 20,
-        reward: 14.3,
-        address: "深圳大学冬筑1428",
-        doorTime: DateTime.now(),
-        createTime: DateTime.now(),
-        comment: "一些备注",
-        taskValue: TaskValue.high,
-        state: TaskState.pending),
-    Task(
-        id: 125,
-        userId: 6,
-        postmanId: 7,
-        expressNum: 2,
-        weight: 20,
-        reward: 12.3,
-        address: "深圳大学冬筑1428",
-        doorTime: DateTime.now(),
-        createTime: DateTime.now(),
-        comment: "一些备注",
-        taskValue: TaskValue.high,
-        state: TaskState.accepted),
-  ];
-
-  static final List<Task> testFinishedTasksData = [
-    Task(
-        id: 123,
-        userId: 3,
-        expressNum: 2,
-        weight: 20,
-        reward: 16.3,
-        address: "深圳大学冬筑1428",
-        doorTime: DateTime.now(),
-        createTime: DateTime.now(),
-        comment: "一些备注",
-        taskValue: TaskValue.high,
-        state: TaskState.complete),
-    Task(
-        id: 124,
-        userId: 2,
-        expressNum: 2,
-        weight: 20,
-        reward: 14.3,
-        address: "深圳大学冬筑1428",
-        doorTime: DateTime.now(),
-        createTime: DateTime.now(),
-        comment: "一些备注",
-        taskValue: TaskValue.high,
-        state: TaskState.complete),
-    Task(
-        id: 125,
-        userId: 6,
-        postmanId: 7,
-        expressNum: 2,
-        weight: 20,
-        reward: 12.3,
-        address: "深圳大学冬筑1428",
-        doorTime: DateTime.now(),
-        createTime: DateTime.now(),
-        comment: "一些备注",
-        taskValue: TaskValue.high,
-        state: TaskState.complete),
-  ];
+class TaskStatusPageState extends State<TaskStatusPage> {
+  // data
 
   @override
   Widget build(BuildContext context) {
@@ -262,12 +255,14 @@ class TaskStatusState extends State<TaskStatus> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
               Tab(
-                text: "已接受",
+                text: widget.statusType == TaskStatusPageType.User
+                    ? "进行中"
+                    : "已接受",
               ),
-              Tab(
+              const Tab(
                 text: "已完成",
               ),
             ],
@@ -280,20 +275,62 @@ class TaskStatusState extends State<TaskStatus> {
             Container(
               decoration:
                   const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),
-              child: ListView.builder(
-                  itemCount: testTasksData.length,
-                  itemBuilder: ((context, index) {
-                    return TaskStatusTile(task: testTasksData[index]);
+              child: FutureBuilder(
+                  future: widget.statusType == TaskStatusPageType.User
+                      ? Provider.of<TaskStateModel>(context, listen: true)
+                          .userTasks
+                      : Provider.of<TaskStateModel>(context, listen: true)
+                          .postmanTasks,
+                  builder: ((context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<Task> tasks = snapshot.data!;
+                      return ListView.builder(
+                          itemCount: tasks.length,
+                          itemBuilder: ((context, index) {
+                            return TaskStatusTile(
+                              task: tasks[index],
+                              statusType: widget.statusType,
+                            );
+                          }));
+                    }
+                    return const Center(
+                      child: CupertinoActivityIndicator(),
+                    );
                   })),
             ),
             Container(
               decoration:
                   const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),
-              child: ListView.builder(
-                  itemCount: testFinishedTasksData.length,
-                  itemBuilder: ((context, index) {
-                    return TaskStatusTile(task: testFinishedTasksData[index]);
-                  })),
+              child: FutureBuilder(
+                future: widget.statusType == TaskStatusPageType.User
+                    ? Provider.of<TaskStateModel>(context, listen: true)
+                        .userCompleteTasks
+                    : Provider.of<TaskStateModel>(context, listen: true)
+                        .postmanCompleteTasks,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Task> completeTasks = snapshot.data!;
+                    return ListView.builder(
+                        itemCount: completeTasks.length,
+                        itemBuilder: ((context, index) {
+                          return TaskStatusTile(
+                            task: completeTasks[index],
+                            statusType: widget.statusType,
+                          );
+                        }));
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(snapshot.error!.toString()),
+                    );
+                  }
+
+                  return const Center(
+                    child: CupertinoActivityIndicator(),
+                  );
+                },
+              ),
             )
           ],
         ),

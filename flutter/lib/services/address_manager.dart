@@ -25,6 +25,7 @@ class AddressManager {
 
   List<AddressInfo> addressInfos = [];
 
+  /// 获取用户默认的收件地址，取第一个作为默认地址
   Future<AddressInfo?> getDefaultAddressInfo() async {
     List<AddressInfo> infos = await fetchAddressInfos();
     if (infos.isNotEmpty) {
@@ -33,6 +34,7 @@ class AddressManager {
     return null;
   }
 
+  /// 获取所有地址列表
   Future<List<AddressInfo>> fetchAddressInfos() async {
     int userId = await UserServices().getUserId();
 
@@ -63,6 +65,9 @@ class AddressManager {
 
     return [];
   }
+
+  //// 下面为地址的添加，删除，修改操作
+  ///
 
   Future<bool> addAddress(AddressInfo info) async {
     int userId = await UserServices().getUserId();

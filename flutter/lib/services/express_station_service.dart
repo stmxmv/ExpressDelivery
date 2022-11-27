@@ -2,6 +2,7 @@ import 'package:express_delivery/models/express_station.dart';
 import 'request.dart';
 
 class ExpressStationService {
+  /// 获取所有驿站地址
   Future<List<ExpressStation>> getStationList() async {
     Response response =
         await Request().get("/express/expressStation/getExpressStationList");

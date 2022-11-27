@@ -3,27 +3,36 @@ import 'dart:convert';
 
 class User {
   final int id;
+  final int? postmanId;
   final String username;
 
   final String nickname;
   final String email;
   final String phone;
 
-  const User({
-    required this.id,
-    required this.username,
-    required this.nickname,
-    required this.email,
-    required this.phone,
-  });
+  final int likeNum;
+  final int dislikeNum;
+
+  const User(
+      {required this.id,
+      required this.username,
+      required this.nickname,
+      required this.email,
+      required this.phone,
+      this.postmanId,
+      this.likeNum = 0,
+      this.dislikeNum = 0});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-        username: json['username'],
+        username: json['name'],
         nickname: json['nickname'],
         email: json['email'],
         phone: json['phone'],
-        id: json['id']);
+        id: json['id'],
+        postmanId: json['courierId'],
+        likeNum: json['likeNum'],
+        dislikeNum: json['dislikeNum']);
   }
 }
 
