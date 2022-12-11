@@ -2,6 +2,7 @@ import 'package:express_delivery/pages/postman_center.dart';
 import 'package:express_delivery/pages/task/task_publish.dart';
 import 'package:express_delivery/services/UserServices.dart';
 import 'package:express_delivery/services/screenAdapter.dart';
+import 'package:express_delivery/widgets/swiper_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -102,12 +103,12 @@ class _HomePageState extends State<HomePage> {
             ]),
           ),
           centerTitle: true,
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.chat),
-              onPressed: () {},
-            )
-          ],
+          // actions: <Widget>[
+          //   IconButton(
+          //     icon: const Icon(Icons.chat),
+          //     onPressed: () {},
+          //   )
+          // ],
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -233,7 +234,15 @@ class _HomePageState extends State<HomePage> {
                   }
                 }),
               ],
-            )
+            ),
+            SizedBox(
+              height: ScreenAdapter().height(20),
+            ),
+            SizedBox(
+              width: ScreenAdapter().width(300),
+              height: ScreenAdapter().width(150),
+              child: const SwiperView(),
+            ),
           ],
         ));
   }

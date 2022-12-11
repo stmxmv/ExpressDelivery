@@ -1,11 +1,14 @@
+import 'package:badges/badges.dart';
 import 'package:express_delivery/models/task_state_model.dart';
 import 'package:express_delivery/pages/HomePage.dart';
+import 'package:express_delivery/pages/message_page.dart';
 import 'package:express_delivery/pages/personal_page.dart';
 import 'package:express_delivery/pages/task/task_status.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'models/message_model.dart';
 import 'pages/task/task_gallery.dart';
 import 'services/screenAdapter.dart';
 
@@ -43,6 +46,8 @@ class _HomeState extends State<Home> {
     if (index == 1) {
       // 刷新任务
       Provider.of<TaskStateModel>(context, listen: false).refresh();
+    } else if (index == 2) {
+      Provider.of<MessageModel>(context, listen: false).refresh();
     }
     setState(() {
       _selectedIndex = index;
@@ -57,7 +62,7 @@ class _HomeState extends State<Home> {
     const TaskStatusPage(
       statusType: TaskStatusPageType.User,
     ),
-    const ErrorPage(),
+    const MessagePage(),
     const PersonalPage()
   ];
 
@@ -118,7 +123,13 @@ class _HomeState extends State<Home> {
                 child: Icon(Icons.business),
               )),
           BottomNavigationBarItem(
-            icon: Icon(Icons.message),
+            icon: Badge(
+                showBadge: context.watch<MessageModel>().unreadCount > 0,
+                badgeContent: Text(
+                  "${context.watch<MessageModel>().unreadCount}",
+                  style: const TextStyle(color: Colors.white),
+                ),
+                child: const Icon(Icons.message)),
             label: '消息',
           ),
           BottomNavigationBarItem(

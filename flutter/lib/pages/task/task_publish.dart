@@ -436,12 +436,19 @@ class TaskPublishState extends State<TaskPublish> {
                             "¥",
                             style: TextStyle(fontSize: 30),
                           ),
-                          SizedBox(
+                          Container(
+                            // margin: EdgeInsets.only(
+                            //     top: ScreenAdapter().height(20)),
                             width: 150,
                             child: TextField(
                               textAlign: TextAlign.center,
                               style: const TextStyle(fontSize: 30),
-                              decoration: null,
+                              decoration: const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  counterStyle: TextStyle(
+                                    height: double.minPositive,
+                                  ),
+                                  counterText: ""),
                               keyboardType:
                                   const TextInputType.numberWithOptions(
                                       decimal: true),

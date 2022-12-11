@@ -1,5 +1,6 @@
 import 'package:express_delivery/models/postman.dart';
 import 'package:express_delivery/models/task_state_model.dart';
+import 'package:express_delivery/pages/task/postman_complete_task.dart';
 import 'package:express_delivery/services/UserServices.dart';
 import 'package:express_delivery/services/screenAdapter.dart';
 import 'package:express_delivery/services/task_service.dart';
@@ -176,7 +177,21 @@ class TaskStatusTileState extends State<TaskStatusTile> {
                                 )),
                               ),
                               onTap: () {
-                                showFinishConfirmDialog(context);
+                                if (widget.statusType ==
+                                    TaskStatusPageType.User) {
+                                  showFinishConfirmDialog(context);
+                                } else {
+                                  Navigator.push(context,
+                                      CupertinoPageRoute(builder: ((context) {
+                                    return PostmanCompleteTask(
+                                      task: widget.task,
+                                    );
+                                  }))).then((value) {
+                                    Provider.of<TaskStateModel>(context,
+                                            listen: false)
+                                        .refresh();
+                                  });
+                                }
                               },
                             ),
                           ),

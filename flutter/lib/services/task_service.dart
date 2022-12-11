@@ -1,5 +1,6 @@
 import 'package:express_delivery/models/task.dart';
 import 'package:express_delivery/pages/task/task_status.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'UserServices.dart';
 import 'request.dart';
@@ -116,6 +117,36 @@ class TaskService {
 
       Response response = await Request()
           .post("/express/task/finishTask", queryParameters: data);
+      if (response.data["msg"] != null && response.data["msg"] == "成功") {
+        return true;
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    return false;
+  }
+
+  Future<bool> postmanRequestFinishTask(
+      int taskId, XFile? image, String remark) async {
+    try {
+      int userId = await UserServices().getUserId();
+
+      var data = {
+        "taskId": taskId,
+        "remark": remark,
+      };
+
+      if (image != null) {
+        data['images'] = [
+          await MultipartFile.fromFile(image.path,
+              filename: image.path.split('/').last)
+        ];
+      }
+
+      Response response = await Request().post(
+          "/express/task/finishTaskManually",
+          data: FormData.fromMap(data));
       if (response.data["msg"] != null && response.data["msg"] == "成功") {
         return true;
       }

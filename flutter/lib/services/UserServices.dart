@@ -26,7 +26,11 @@ class UserServices {
   }
 
   Future<User> getUserInfo() async {
-    var id = await Storage().getString('user_id');
+    return await getUserInfoById(
+        int.parse((await Storage().getString('user_id'))!));
+  }
+
+  Future<User> getUserInfoById(int id) async {
     var data = {"id": id};
     try {
       Response response = await Request()

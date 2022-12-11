@@ -1,23 +1,26 @@
 import 'dart:io';
-
-import 'package:express_delivery/services/screenAdapter.dart';
+import 'package:express_delivery/services/task_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/container.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-class PostmanRegisterPage extends StatefulWidget {
-  const PostmanRegisterPage({super.key});
+import '../../models/task.dart';
+import '../../services/screenAdapter.dart';
+
+class PostmanCompleteTask extends StatefulWidget {
+  final Task task;
+  const PostmanCompleteTask({super.key, required this.task});
 
   @override
-  State<StatefulWidget> createState() => _PostmanRegisterPageState();
+  State<PostmanCompleteTask> createState() => _PostmanCompleteTaskState();
 }
 
-class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
-  XFile? idCardFrontImage;
-  XFile? idCardBackImage;
+class _PostmanCompleteTaskState extends State<PostmanCompleteTask> {
+  XFile? image;
+  // XFile? idCardBackImage;
 
   bool isKeyboardVisible = false;
 
@@ -79,37 +82,6 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
     return gesture;
   }
 
-  void showAgreeMentAlertDialog(BuildContext context) {
-    // set up the buttons
-
-    Widget continueButton = TextButton(
-      child: const Text("确定"),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: const Text("平台协议"),
-      content: const SingleChildScrollView(
-        child: Text(
-            "各效劳条款前所列索引关键词仅为协助您了解该条款表达的宗旨之用，不影响或限制本协议条款的含义或解释。为维护您本身权益，倡议您认真阅读各条款详细表述。 【审慎阅读】您在申请注册流程中点击同意本协议之前，应当认真阅读本协议。请您务必审慎阅读、充沛了解各条款内容，特别是免除或者限制义务的条款、法律适用和争议处理条款。免除或者限制义务的条款将以粗体下划线标识，您应重点阅读。如您对协议有任何疑问，可向快递代拿平台客服咨询。"),
-      ),
-      actions: [
-        continueButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return _keyboardDismisser(
@@ -117,7 +89,7 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
         Scaffold(
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
-            title: const Text("快递员注册"),
+            title: const Text("上传图片和信息"),
             centerTitle: true,
           ),
           body: Container(
@@ -131,7 +103,7 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
                         onTap: () async {
                           _getUserUploadImage(context, (image) {
                             setState(() {
-                              idCardFrontImage = image;
+                              this.image = image;
                             });
                           });
                         },
@@ -141,9 +113,9 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
                           decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20)),
-                          child: idCardFrontImage != null
+                          child: image != null
                               ? Image.file(
-                                  File(idCardFrontImage!.path),
+                                  File(image!.path),
                                   fit: BoxFit.cover,
                                 )
                               : Row(
@@ -153,76 +125,39 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
                                       SizedBox(
                                         width: ScreenAdapter().width(10),
                                       ),
-                                      const Text("上传身份证正面")
+                                      const Text("上传快递图片")
                                     ]),
                         ),
                       ),
                       SizedBox(
                         height: ScreenAdapter().height(50),
                       ),
-                      GestureDetector(
-                        onTap: () async {
-                          _getUserUploadImage(context, (image) {
-                            setState(() {
-                              idCardBackImage = image;
-                            });
-                          });
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: ScreenAdapter().height(150),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: idCardBackImage != null
-                              ? Image.file(
-                                  File(idCardBackImage!.path),
-                                  fit: BoxFit.cover,
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                      const Icon(Icons.camera_alt),
-                                      SizedBox(
-                                        width: ScreenAdapter().width(10),
-                                      ),
-                                      const Text("上传身份证反面")
-                                    ]),
-                        ),
-                      ),
                       Container(
                           padding:
                               EdgeInsets.only(top: ScreenAdapter().height(50)),
-                          child: Row(
+                          child: Column(
                             children: [
-                              const Text("手机号"),
-                              const Spacer(),
+                              const Text("备注"),
                               SizedBox(
-                                width: ScreenAdapter().width(270),
+                                height: ScreenAdapter().height(10),
+                              ),
+                              SizedBox(
+                                height: ScreenAdapter().height(100),
+                                width: ScreenAdapter().width(350),
                                 child: CupertinoTextField(
+                                  textAlignVertical: TextAlignVertical.top,
                                   controller: phoneTextEditingController,
                                   focusNode: phoneTextFieldFocusNode,
-                                  keyboardType: TextInputType.phone,
-                                  maxLines: 1,
+                                  keyboardType: TextInputType.text,
+                                  maxLines: 10,
                                   minLines: 1,
-                                  placeholder: "输入手机号",
+                                  placeholder: "输入备注信息",
                                 ),
                               ),
                             ],
                           )),
                       SizedBox(
                         height: ScreenAdapter().height(10),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // launchUrl(Uri.parse('https://www.baidu.com'));
-                          showAgreeMentAlertDialog(context);
-                        },
-                        child: const Center(
-                            child: Text(
-                          "阅读代拿人员协议",
-                          style: TextStyle(color: Colors.blue),
-                        )),
                       ),
                     ],
                   ),
@@ -248,11 +183,20 @@ class _PostmanRegisterPageState extends State<PostmanRegisterPage> {
                                           Radius.circular(30))),
                                   child: const Center(
                                       child: Text(
-                                    '同意协议并申请认证',
+                                    '确认',
                                     style: TextStyle(color: Colors.white),
                                   ))),
                             ),
-                            onTap: () {},
+                            onTap: () async {
+                              bool result = await TaskService()
+                                  .postmanRequestFinishTask(widget.task.id,
+                                      image, phoneTextEditingController.text);
+                              if (mounted && result) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('已发送')));
+                                Navigator.pop(context);
+                              }
+                            },
                           ),
                         ),
                       ),

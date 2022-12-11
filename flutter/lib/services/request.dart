@@ -11,7 +11,8 @@ class Request {
 
   Request._internal();
 
-  final String serverAddress = "http://120.79.207.158:8080";
+  final String serverAddress = "http://43.138.133.96:8080";
+  // final String serverAddress = "http://120.79.207.158:8080";
   // final String serverAddress = "http://10.0.2.2:8080";
 
   Future<Response<T>> get<T>(String path,
